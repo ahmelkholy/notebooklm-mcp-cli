@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.17] - 2026-03-02
+
+### Added
+- **Multi-browser support for `nlm login`** — `nlm login` now detects and launches any Chromium-based browser, not just Google Chrome. Supported browsers (in priority order): Google Chrome, Arc (macOS), Brave, Microsoft Edge, Chromium, Vivaldi, Opera. Checks both system and user-local install paths. Error messages now dynamically list supported browsers per platform. Thanks to **@devnull03** for this contribution (PR #70).
+- **Browser preference setting** — Users can now control which browser `nlm login` uses via `nlm config set auth.browser <name>`. Valid values: `auto` (default, first found wins), `chrome`, `arc`, `brave`, `edge`, `chromium`, `vivaldi`, `opera`. Falls back to auto-detection if the preferred browser is not installed. Also settable via `NLM_BROWSER` env var.
+
+### Fixed
+- **Deep research task_id mismatch (Issue #69)** — `nlm research status <nb> --task-id <id>` returned "no research found" for deep research because the backend assigns a new task_id internally. Now falls back to returning the only active task when the original task_id doesn't match. Thanks to **@danielbrodie** for reporting.
+
 ## [0.3.16] - 2026-02-28
 
 ### Fixed

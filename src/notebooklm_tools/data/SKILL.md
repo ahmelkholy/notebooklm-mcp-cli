@@ -125,7 +125,7 @@ mcp__notebooklm-mcp__save_auth_tokens(cookies="<cookie_header>")
 #### CLI Authentication
 
 ```bash
-nlm login                           # Launch Chrome, extract cookies (primary method)
+nlm login                           # Launch browser, extract cookies (primary method)
 nlm login --check                   # Validate current session
 nlm login --profile work            # Use named profile for multiple accounts
 nlm login --provider openclaw --cdp-url http://127.0.0.1:18800  # External CDP provider
@@ -135,7 +135,7 @@ nlm login profile delete <name>     # Delete a profile
 nlm login profile rename <old> <new> # Rename a profile
 ```
 
-**Multi-Profile Support**: Each profile gets its own isolated Chrome session, so you can be logged into multiple Google accounts simultaneously.
+**Multi-Profile Support**: Each profile gets its own isolated browser session (supports Chrome, Arc, Brave, Edge, Chromium, and more), so you can be logged into multiple Google accounts simultaneously.
 
 **Session lifetime**: ~20 minutes. Re-authenticate when commands fail with auth errors.
 
@@ -498,7 +498,7 @@ nlm login switch work                        # Switch default profile
 | `output.format` | `table` | Default output format (table, json) |
 | `output.color` | `true` | Enable colored output |
 | `output.short_ids` | `true` | Show shortened IDs |
-| `auth.browser` | `auto` | Browser for login (auto, chrome, chromium) |
+| `auth.browser` | `auto` | Preferred browser for login (auto, chrome, arc, brave, edge, chromium, vivaldi, opera) |
 | `auth.default_profile` | `default` | Profile to use when `--profile` not specified |
 
 ### 11. Skill Management
@@ -578,7 +578,7 @@ nlm source sync <id> --confirm           # Sync if stale
 | "Source not found" | Invalid ID | `nlm source list <nb-id>` |
 | "Rate limit exceeded" | Too many calls | Wait 30s, retry |
 | "Research already in progress" | Pending research | Use `--force` or import first |
-| Chrome doesn't launch | Port conflict | Close Chrome, retry |
+| Browser doesn't launch | Port conflict | Close browser, retry |
 
 ## Rate Limiting
 

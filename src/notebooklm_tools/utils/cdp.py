@@ -31,6 +31,7 @@ from notebooklm_tools.core.exceptions import AuthenticationError
 
 __all__ = [
     "get_chrome_path",
+    "get_browser_display_name",
     "get_supported_browsers",
     "extract_cookies_via_cdp",
     "extract_cookies_via_existing_cdp",
@@ -247,31 +248,96 @@ def _windows_browser_candidates() -> list[tuple[str, str]]:
     ]
 
 
+# Cached detected browser name for user-facing messages
+_detected_browser_name: str | None = None
+
+
+def get_browser_display_name() -> str:
+    """Return the display name of the browser that will be (or was) launched."""
+    global _detected_browser_name
+    if _detected_browser_name:
+        return _detected_browser_name
+    return "browser"
+
+
+# Map config values to display names used in candidate tables
+_BROWSER_CONFIG_MAP: dict[str, list[str]] = {
+    "chrome": ["Google Chrome"],
+    "arc": ["Arc"],
+    "brave": ["Brave Browser"],
+    "edge": ["Microsoft Edge"],
+    "chromium": ["Chromium"],
+    "vivaldi": ["Vivaldi"],
+    "opera": ["Opera", "Opera GX"],
+}
+
+
+def _get_preferred_browser() -> str:
+    """Read the auth.browser config setting (default: 'auto')."""
+    try:
+        from notebooklm_tools.utils.config import load_config
+        return load_config().auth.browser.lower().strip()
+    except Exception:
+        return "auto"
+
+
 def get_chrome_path() -> str | None:
     """Return the path/executable for the first available Chromium-based browser.
 
-    Search order (all platforms): Google Chrome → Arc (macOS) → Brave →
-    Microsoft Edge → Chromium → Vivaldi → Opera.
+    Respects the ``auth.browser`` config setting:
+    - ``auto`` (default): tries browsers in priority order.
+    - A specific name (e.g. ``brave``): tries that browser first, then
+      falls back to the full priority list if not found.
 
+    Set via ``nlm config set auth.browser <name>`` or ``NLM_BROWSER`` env var.
+    Valid names: auto, chrome, arc, brave, edge, chromium, vivaldi, opera.
     """
+    global _detected_browser_name
+    preferred = _get_preferred_browser()
+    preferred_names = _BROWSER_CONFIG_MAP.get(preferred, [])
+
+    def _found(name: str, path: str, fallback: bool = False) -> str:
+        """Record detected browser name and return the path."""
+        global _detected_browser_name
+        _detected_browser_name = name
+        if fallback:
+            _logger.info("Preferred browser not found, falling back to %s", name)
+        else:
+            _logger.info("Using preferred browser: %s", name)
+        return path
+
     system = platform.system()
 
     if system == "Darwin":
-        for _name, path in _macos_browser_candidates():
+        candidates = _macos_browser_candidates()
+        if preferred_names:
+            for name, path in candidates:
+                if name in preferred_names and Path(path).exists():
+                    return _found(name, path)
+        for name, path in candidates:
             if Path(path).exists():
-                return path
+                return _found(name, path, fallback=bool(preferred_names))
         return None
 
     elif system == "Linux":
-        for _name, exe in _LINUX_BROWSER_CANDIDATES:
+        if preferred_names:
+            for name, exe in _LINUX_BROWSER_CANDIDATES:
+                if name in preferred_names and shutil.which(exe):
+                    return _found(name, exe)
+        for name, exe in _LINUX_BROWSER_CANDIDATES:
             if shutil.which(exe):
-                return exe
+                return _found(name, exe, fallback=bool(preferred_names))
         return None
 
     elif system == "Windows":
-        for _name, path in _windows_browser_candidates():
+        candidates = _windows_browser_candidates()
+        if preferred_names:
+            for name, path in candidates:
+                if name in preferred_names and Path(path).exists():
+                    return _found(name, path)
+        for name, path in candidates:
             if Path(path).exists():
-                return path
+                return _found(name, path, fallback=bool(preferred_names))
         return None
 
     return None
@@ -749,7 +815,9 @@ def extract_cookies_via_cdp(
                 hint="Try 'nlm login --manual' to import cookies from a file.",
             )
 
-        debugger_url = get_debugger_url(port, tries=5)
+        # Non-Chrome browsers (Brave, Edge, etc.) may take longer to start,
+        # so allow up to 10 seconds for the CDP debugger to become available.
+        debugger_url = get_debugger_url(port, tries=10)
 
     if not debugger_url:
         raise AuthenticationError(

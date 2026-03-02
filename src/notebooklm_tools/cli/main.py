@@ -231,7 +231,11 @@ def login_callback(
             )
         else:
             # Default: builtin CDP mode - managed Chrome profile
-            console.print("[bold]Launching Chrome for authentication...[/bold]")
+            from notebooklm_tools.utils.cdp import get_browser_display_name, get_chrome_path
+            # Detect browser early so messages show the correct name
+            get_chrome_path()
+            browser_name = get_browser_display_name()
+            console.print(f"[bold]Launching {browser_name} for authentication...[/bold]")
             console.print("[dim]Using Chrome DevTools Protocol[/dim]\n")
 
             from notebooklm_tools.utils.config import check_migration_sources, run_migration, get_storage_dir
@@ -257,7 +261,7 @@ def login_callback(
                         console.print(f"  [green]✓[/green] {action}")
                     console.print()
 
-            console.print("Starting Chrome...")
+            console.print(f"Starting {browser_name}...")
             result = extract_cookies_via_cdp(
                 auto_launch=True,
                 wait_for_login=True,
@@ -269,7 +273,7 @@ def login_callback(
 
         if result.get("reused_existing"):
             console.print(
-                "[yellow]Warning:[/yellow] Connected to an already-running Chrome instance. "
+                f"[yellow]Warning:[/yellow] Connected to an already-running {get_browser_display_name()} instance. "
                 "Profile isolation may not apply — verify the account is correct."
             )
 
@@ -291,7 +295,7 @@ def login_callback(
 
         # Close builtin auth Chrome to release profile lock (enables headless auth later)
         if launched_local_chrome:
-            console.print("[dim]Closing Chrome...[/dim]")
+            console.print(f"[dim]Closing {get_browser_display_name()}...[/dim]")
             terminate_chrome()
 
         console.print(f"\n[green]✓[/green] Successfully authenticated!")
@@ -313,7 +317,7 @@ def login_callback(
                 f"([bold]{result.get('email', '?')}[/bold] instead of "
                 f"[bold]{e.stored_email}[/bold])."
             )
-            console.print("[dim]Clearing stale browser session and relaunching Chrome...[/dim]\n")
+            console.print(f"[dim]Clearing stale browser session and relaunching {get_browser_display_name()}...[/dim]\n")
 
             # Close the mismatch Chrome
             try:
@@ -348,7 +352,7 @@ def login_callback(
                 )
 
                 if launched_local_chrome:
-                    console.print("[dim]Closing Chrome...[/dim]")
+                    console.print(f"[dim]Closing {get_browser_display_name()}...[/dim]")
                     terminate_chrome()
 
                 console.print(f"\n[green]✓[/green] Successfully authenticated!")
