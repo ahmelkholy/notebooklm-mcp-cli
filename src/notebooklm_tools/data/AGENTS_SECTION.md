@@ -52,6 +52,14 @@ nlm quiz create <id> --count 10 --focus "Key Concepts" --confirm
 nlm flashcards create <id> --focus "Vocabulary" --confirm
 ```
 
+**Multi-Notebook Operations:**
+```bash
+nlm tag add <id> --tags "ai,research"                     # Tag notebooks
+nlm batch query "Summarize" --tags "ai"                   # Batch query by tag
+nlm cross query "Compare approaches" --notebooks "id1,id2"  # Cross-notebook query
+nlm pipeline run <id> ingest-and-podcast --url "https://..."  # Run pipeline
+```
+
 ### Full Documentation
 
 For complete command reference, troubleshooting, and workflows, install the full skill:
