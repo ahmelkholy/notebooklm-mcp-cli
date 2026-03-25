@@ -17,7 +17,7 @@ from rich.progress import (
 
 from notebooklm_tools.cli.utils import get_client, handle_error
 from notebooklm_tools.core.alias import get_alias_manager
-from notebooklm_tools.core.client import ArtifactNotReadyError
+from notebooklm_tools.core.errors import ArtifactNotReadyError
 from notebooklm_tools.services import ServiceError
 from notebooklm_tools.services import downloads as downloads_service
 

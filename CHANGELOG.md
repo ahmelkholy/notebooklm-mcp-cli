@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.9] - 2026-03-25
+### Fixed
+- Fixed a fatal `ImportError` in the CLI (`ArtifactNotReadyError`) caused by missed codebase updates during the v0.5.8 structural refactor.
+
 ## [0.5.8] - 2026-03-25
 
 ### Fixed/Changed
