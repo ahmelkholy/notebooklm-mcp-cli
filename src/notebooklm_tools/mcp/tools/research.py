@@ -67,6 +67,8 @@ def research_status(
             task_id=task_id,
             query=query,
             compact=compact,
+            poll_interval=poll_interval,
+            max_wait=max_wait,
         )
         return result
     except ServiceError as e:
