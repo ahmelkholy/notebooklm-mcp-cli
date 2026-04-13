@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.5.23] - 2026-04-12
 
 ### Fixed
-- **Windows: Server crashes immediately on startup (Issue #150)** — `os.execvp` fails on Windows. Replaced with `subprocess.run` to prevent immediate crashes on Windows 11 during server startup via the `.mcpb` bundle. Added explicit `stdin=sys.stdin`, `stdout=sys.stdout`, and `stderr=sys.stderr` to ensure the JSON-RPC stdio channel between Claude Desktop and the server remains properly connected across platforms.
+- **Windows: Server crashes immediately on startup (Issue #150)** — `os.execvp` fails on Windows. Replaced with `subprocess.run` to prevent immediate crashes on Windows 11 during server startup via the `.mcpb` bundle. Added explicit `stdin=sys.stdin`, `stdout=sys.stdout`, and `stderr=sys.stderr` to ensure the JSON-RPC stdio channel between Claude Desktop and the server remains properly connected across platforms. Thanks to **@m3saros** for diagnosing the root cause and providing the exact fix!
 
 ## [0.5.22] - 2026-04-11
 
