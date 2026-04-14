@@ -696,13 +696,27 @@ def execute_cdp_command(
             _cached_ws.close()
             _cached_ws = None
 
+        # Explicitly disable proxies for localhost CDP connections (Issue #119)
+        proxy_args = {
+            "http_proxy_host": None,
+            "http_proxy_port": None,
+        }
         # suppress_origin=True is required for some managed Chrome/CDP endpoints
         # (e.g. OpenClaw browser profile) that reject default Origin headers.
         try:
-            ws = websocket.create_connection(ws_url, timeout=30, suppress_origin=True)
+            ws = websocket.create_connection(
+                ws_url,
+                timeout=30,
+                suppress_origin=True,
+                **proxy_args
+            )
         except TypeError:
             # Older websocket-client versions may not support suppress_origin.
-            ws = websocket.create_connection(ws_url, timeout=30)
+            ws = websocket.create_connection(
+                ws_url,
+                timeout=30,
+                **proxy_args
+            )
         _cached_ws = ws
         _cached_ws_url = ws_url
     else:
